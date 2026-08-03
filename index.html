@@ -1,17 +1,275 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="17문항 객관식 퀴즈로 나만의 12타입 퍼스널컬러를 찾아보세요."
-    />
-    <title>퍼스널컬러 진단</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>퍼스널컬러 진단</title>
+  <meta name="description" content="17문항으로 찾는 12타입 퍼스널컬러" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1520;
+      --muted: #6b6570;
+      --cream: #faf7f4;
+      --blush: #f3e8e2;
+      --accent: #c45c3e;
+      --accent-dark: #9e3f28;
+      --line: #e8e0d8;
+      --white: rgba(255,255,255,.82);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      font-family: 'Outfit', 'Noto Sans KR', system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #f5d9c8 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 90% 0%, #d8e4f0 0%, transparent 45%),
+        radial-gradient(ellipse 50% 30% at 50% 100%, #e8d5e0 0%, transparent 40%),
+        var(--cream);
+      -webkit-font-smoothing: antialiased;
+    }
+    #app { max-width: 32rem; margin: 0 auto; padding: 2rem 1.25rem 3rem; min-height: 100svh; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 .75rem; }
+    h1 { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.15; letter-spacing: -.03em; margin: 0 0 1rem; }
+    h2 { font-size: 1.4rem; line-height: 1.35; margin: 0 0 .5rem; }
+    h3 { font-size: 1rem; margin: 0 0 .6rem; }
+    p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .lead { margin-bottom: 1.75rem; max-width: 24rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1.75rem; }
+    .card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: .85rem 1rem;
+      backdrop-filter: blur(6px);
+    }
+    .card strong { display: block; font-size: .9rem; }
+    .card span { font-size: .75rem; color: var(--muted); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%; border: 0; border-radius: 1rem; padding: 1rem 1.25rem;
+      font: inherit; font-weight: 600; cursor: pointer; transition: .15s ease;
+    }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 10px 24px rgba(196,92,62,.25); }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); width: auto; padding: .85rem 1.1rem; }
+    .btn-ghost:disabled { opacity: .4; }
+    .hint { margin-top: 1rem; text-align: center; font-size: .75rem; color: var(--muted); }
+    .progress-meta { display: flex; justify-content: space-between; font-size: .85rem; color: var(--muted); margin-bottom: .5rem; }
+    .bar { height: .35rem; background: var(--line); border-radius: 999px; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: var(--accent); border-radius: inherit; transition: width .35s ease; }
+    .badge {
+      display: inline-block; margin: 1.5rem 0 .75rem; padding: .3rem .7rem;
+      border-radius: 999px; background: var(--blush); color: var(--accent);
+      font-size: .75rem; font-weight: 700;
+    }
+    .choices { display: grid; gap: .7rem; margin: 1.25rem 0 1.75rem; }
+    .choice {
+      text-align: left; background: var(--white); border: 1px solid var(--line);
+      border-radius: 1rem; padding: 1rem 1.1rem; font: inherit; font-weight: 500;
+      cursor: pointer; transition: .15s ease; color: var(--ink);
+    }
+    .choice:hover { border-color: rgba(196,92,62,.4); background: #fff; }
+    .choice.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .nav { display: flex; gap: .75rem; }
+    .nav .btn-primary { flex: 1; }
+    .center { text-align: center; }
+    .accent-line { width: 4rem; height: .35rem; border-radius: 999px; margin-bottom: 1rem; }
+    .palette { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+    .swatch { width: 2.5rem; height: 2.5rem; border-radius: 999px; border: 1px solid rgba(0,0,0,.08); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .swatch.sm { width: 2rem; height: 2rem; }
+    .section { background: var(--white); border: 1px solid var(--line); border-radius: 1.25rem; padding: 1.15rem; margin-bottom: 1rem; }
+    .label { font-size: .85rem; font-weight: 600; color: var(--muted); margin-bottom: .4rem; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    li { display: flex; gap: .55rem; font-size: .9rem; color: var(--muted); line-height: 1.5; margin-bottom: .45rem; }
+    li::before { content: ''; width: .4rem; height: .4rem; border-radius: 999px; background: var(--dot, var(--accent)); margin-top: .55rem; flex: 0 0 auto; }
+    .warn { background: #fff8eb; border: 1px solid #f5e0a8; color: #7a5a12; border-radius: 1rem; padding: .85rem 1rem; font-size: .9rem; margin-bottom: 1rem; }
+    .similar { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .fade { animation: fade .35s ease both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    const QUESTIONS = [{"id":"u1","category":"undertone","text":"손목 안쪽의 혈관 색은 어느 쪽에 더 가깝나요?","hint":"자연광 아래에서 보면 더 정확합니다.","choices":[{"id":"u1a","label":"초록·올리브 계열에 가깝다","scores":{"undertone":1}},{"id":"u1b","label":"파란·보라 계열에 가깝다","scores":{"undertone":-1}},{"id":"u1c","label":"둘 다 비슷하거나 잘 모르겠다","scores":{"undertone":0}}]},{"id":"u2","category":"undertone","text":"액세서리 중 어떤 금속이 피부에 더 잘 어울리나요?","choices":[{"id":"u2a","label":"골드·브론즈가 더 자연스럽다","scores":{"undertone":1}},{"id":"u2b","label":"실버·화이트골드가 더 자연스럽다","scores":{"undertone":-1}},{"id":"u2c","label":"둘 다 비슷하게 잘 어울린다","scores":{"undertone":0}}]},{"id":"u3","category":"undertone","text":"햇볕에 오래 있으면 피부가 어떻게 변하나요?","choices":[{"id":"u3a","label":"노랗게·갈색으로 잘 탄다","scores":{"undertone":1}},{"id":"u3b","label":"쉽게 붉어지거나 잘 타지 않는다","scores":{"undertone":-1}},{"id":"u3c","label":"상황에 따라 다르다","scores":{"undertone":0}}]},{"id":"u4","category":"undertone","text":"흰 셔츠와 아이보리 셔츠 중, 얼굴이 더 환해 보이는 쪽은?","choices":[{"id":"u4a","label":"아이보리·크림이 더 잘 어울린다","scores":{"undertone":1}},{"id":"u4b","label":"퓨어 화이트가 더 잘 어울린다","scores":{"undertone":-1}},{"id":"u4c","label":"큰 차이가 없다","scores":{"undertone":0}}]},{"id":"u5","category":"undertone","text":"자연 상태의 입술·볼 색은 어느 쪽에 가깝나요?","choices":[{"id":"u5a","label":"복숭아·코랄·살몬 계열","scores":{"undertone":1}},{"id":"u5b","label":"로즈·핑크·베리 계열","scores":{"undertone":-1}},{"id":"u5c","label":"중간이거나 잘 모르겠다","scores":{"undertone":0}}]},{"id":"v1","category":"value","text":"본인의 피부톤 밝기는 어느 쪽에 가깝나요?","choices":[{"id":"v1a","label":"밝은 편이다","scores":{"value":1}},{"id":"v1b","label":"중간 정도다","scores":{"value":0}},{"id":"v1c","label":"어두운 편이다","scores":{"value":-1}}]},{"id":"v2","category":"value","text":"염색하지 않은 자연 머리색은?","choices":[{"id":"v2a","label":"밝은 브라운·블론드 계열","scores":{"value":1}},{"id":"v2b","label":"중간 브라운","scores":{"value":0}},{"id":"v2c","label":"진한 브라운·거의 블랙","scores":{"value":-1}}]},{"id":"v3","category":"value","text":"눈동자 색은 어느 쪽에 가깝나요?","choices":[{"id":"v3a","label":"밝은 브라운·호박색 계열","scores":{"value":1}},{"id":"v3b","label":"중간 브라운","scores":{"value":0}},{"id":"v3c","label":"짙은 브라운·거의 블랙","scores":{"value":-1}}]},{"id":"v4","category":"value","text":"전체적인 인상은 어떤가요?","choices":[{"id":"v4a","label":"맑고 가벼운 인상","scores":{"value":1}},{"id":"v4b","label":"중간적인 인상","scores":{"value":0}},{"id":"v4c","label":"무겁고 깊은 인상","scores":{"value":-1}}]},{"id":"c1","category":"contrast","text":"피부·눈·머리의 톤 차이는 어떤가요?","choices":[{"id":"c1a","label":"비슷한 톤이라 부드러운 인상","scores":{"contrast":-1}},{"id":"c1b","label":"어느 정도 차이가 있다","scores":{"contrast":0}},{"id":"c1c","label":"대비가 뚜렷해 선명한 인상","scores":{"contrast":1}}]},{"id":"c2","category":"contrast","text":"메이크업은 어떤 스타일이 더 잘 받나요?","choices":[{"id":"c2a","label":"연하고 자연스러운 메이크업","scores":{"contrast":-1}},{"id":"c2b","label":"중간 정도의 메이크업","scores":{"contrast":0}},{"id":"c2c","label":"또렷한 아이라인·립이 잘 맞는다","scores":{"contrast":1}}]},{"id":"c3","category":"contrast","text":"흑백 사진으로 찍었을 때 인상은?","choices":[{"id":"c3a","label":"부드럽고 은은하다","scores":{"contrast":-1}},{"id":"c3b","label":"보통이다","scores":{"contrast":0}},{"id":"c3c","label":"선명하고 또렷하다","scores":{"contrast":1}}]},{"id":"ch1","category":"chroma","text":"옷 색상 중 어떤 쪽이 얼굴을 더 살려주나요?","choices":[{"id":"ch1a","label":"선명한 원색·비비드 컬러","scores":{"chroma":1}},{"id":"ch1b","label":"중간 정도의 색","scores":{"chroma":0}},{"id":"ch1c","label":"탁하고 부드러운 파스텔·어스톤","scores":{"chroma":-1}}]},{"id":"ch2","category":"chroma","text":"네온·비비드한 색을 입으면?","choices":[{"id":"ch2a","label":"얼굴에 생기가 돌고 잘 어울린다","scores":{"chroma":1}},{"id":"ch2b","label":"때에 따라 다르다","scores":{"chroma":0}},{"id":"ch2c","label":"얼굴이 칙칙해지거나 부담스럽다","scores":{"chroma":-1}}]},{"id":"ch3","category":"chroma","text":"패턴·프린트는 어떤 스타일이 더 잘 맞나요?","choices":[{"id":"ch3a","label":"선명한 대비가 있는 패턴","scores":{"chroma":1,"contrast":0.5}},{"id":"ch3b","label":"중간 정도","scores":{"chroma":0}},{"id":"ch3c","label":"은은한 톤온톤·뮤트한 패턴","scores":{"chroma":-1,"contrast":-0.5}}]},{"id":"p1","category":"palette","text":"아래 두 팔레트 중, 얼굴이 더 환해 보일 것 같은 쪽은?","hint":"실제로 옷이나 천을 얼굴 옆에 대본다고 상상해 보세요.","choices":[{"id":"p1a","label":"코랄 · 피치 · 밝은 골드 · 민트","scores":{"undertone":1,"chroma":0.5,"value":0.5}},{"id":"p1b","label":"로즈 · 라벤더 · 스카이블루 · 실버","scores":{"undertone":-1,"chroma":-0.3,"value":0.5}}]},{"id":"p2","category":"palette","text":"아래 두 팔레트 중, 더 자연스럽고 세련되어 보일 것 같은 쪽은?","choices":[{"id":"p2a","label":"카멜 · 올리브 · 테라코타 · 머스타드","scores":{"undertone":1,"chroma":-0.7,"value":-0.3}},{"id":"p2b","label":"와인 · 네이비 · 플럼 · 에메랄드","scores":{"undertone":-1,"chroma":0.5,"value":-0.5}}]}];
+    const COLOR_TYPES = [{"id":"light-spring","nameKo":"라이트 스프링","nameEn":"Light Spring","season":"spring","ideal":{"undertone":1,"value":1,"contrast":0.3,"chroma":0.7},"description":"밝고 따뜻한 톤이 잘 어울리는 타입입니다. 맑고 가벼운 색이 얼굴을 화사하게 살려줍니다.","traits":["피부·눈·머리가 전반적으로 밝은 편","골드·피치·코랄이 잘 맞음","연하고 맑은 색이 잘 받음","강한 대비보다 부드러운 인상이 자연스러움"],"bestColors":["#FFE4C4","#FFDAB9","#FFB6C1","#FFA07A","#98D8C8","#F7DC6F","#AED6F1","#F5B7B1","#D5F5E3","#FAD7A0"],"avoidColors":["#1A1A2E","#4A0E4E","#2C3E50","#800020","#1B4F72"],"makeupTips":"피치·코랄·살몬 립과 연한 골드·샴페인 아이섀도를 추천합니다. 진한 스모키는 피하세요.","fashionTips":"아이보리, 피치, 연한 민트, 라이트 카멜이 잘 어울립니다. 블랙보다는 네이비·브라운이 자연스럽습니다.","celebrities":["아이유","수지","블랙핑크 제니"]},{"id":"true-spring","nameKo":"트루 스프링","nameEn":"True Spring","season":"spring","ideal":{"undertone":1,"value":0.3,"contrast":0.5,"chroma":1},"description":"따뜻하고 선명한 색이 가장 잘 어울리는 전형적인 봄 타입입니다.","traits":["웜톤의 특징이 뚜렷함","선명하고 생기 있는 색이 잘 맞음","골드 액세서리가 자연스러움","복숭아빛 피부가 잘 드러남"],"bestColors":["#FF6B35","#F7C948","#2ECC71","#FF8C42","#E74C3C","#3498DB","#F39C12","#1ABC9C","#E67E22","#FFCC00"],"avoidColors":["#C0C0C0","#4A5568","#718096","#2D3748","#553C9A"],"makeupTips":"코랄·오렌지·따뜻한 레드 립이 잘 맞습니다. 골드·브론즈 섀도로 생기를 더하세요.","fashionTips":"토마토 레드, 코랄, 밝은 노랑, 청록이 잘 어울립니다. 회색·보라 계열은 피하세요.","celebrities":["아이린","송혜교","블랙핑크 로제"]},{"id":"bright-spring","nameKo":"브라이트 스프링","nameEn":"Bright Spring","season":"spring","ideal":{"undertone":1,"value":0.5,"contrast":1,"chroma":1},"description":"따뜻하면서도 대비가 뚜렷해, 선명하고 밝은 비비드 컬러가 잘 어울립니다.","traits":["이목구비 대비가 뚜렷함","비비드하고 클리어한 색이 잘 맞음","웜톤 + 높은 채도","또렷한 메이크업이 잘 받음"],"bestColors":["#FF1744","#FF9100","#FFEA00","#00E676","#00B0FF","#FF4081","#76FF03","#FF6D00","#2979FF","#FFD600"],"avoidColors":["#A1887F","#8D6E63","#BDBDBD","#78909C","#6D4C41"],"makeupTips":"선명한 코랄·레드 립과 또렷한 아이라인이 잘 맞습니다. 탁한 브라운 섀도는 피하세요.","fashionTips":"비비드한 원색, 밝은 화이트, 선명한 그린·블루가 잘 어울립니다. 뮤트한 색은 얼굴을 어둡게 만듭니다.","celebrities":["블랙핑크 지수","한소희","트와이스 사나"]},{"id":"light-summer","nameKo":"라이트 썸머","nameEn":"Light Summer","season":"summer","ideal":{"undertone":-1,"value":1,"contrast":0.3,"chroma":-0.3},"description":"밝고 시원한 톤이 잘 어울리는 타입입니다. 연한 파스텔·로즈 계열이 얼굴을 맑게 보여줍니다.","traits":["피부가 밝은 쿨톤","연한 핑크·라벤더가 잘 맞음","실버 액세서리가 자연스러움","부드러운 대비가 잘 어울림"],"bestColors":["#E8DAEF","#D5F5E3","#AED6F1","#F5B7B1","#D7BDE2","#A9CCE3","#F9E79F","#FADBD8","#D4E6F1","#EBDEF0"],"avoidColors":["#FF6B00","#8B4513","#FF4500","#DAA520","#CD853F"],"makeupTips":"로즈·라벤더·연분홍 립을 추천합니다. 오렌지·골드 계열은 피하세요.","fashionTips":"라벤더, 스카이 블루, 소프트 핑크, 연한 그레이가 잘 어울립니다. 오렌지·머스타드는 피하세요.","celebrities":["태연","트와이스 나연","블랙핑크 리사"]},{"id":"true-summer","nameKo":"트루 썸머","nameEn":"True Summer","season":"summer","ideal":{"undertone":-1,"value":0.3,"contrast":0.5,"chroma":-0.5},"description":"시원하고 부드러운 중간 채도의 색이 가장 잘 어울리는 전형적인 여름 타입입니다.","traits":["쿨톤의 특징이 뚜렷함","뮤트하면서도 세련된 색이 잘 맞음","로즈·블루·라벤더 계열 선호","너무 선명하거나 너무 탁한 색은 부담스러움"],"bestColors":["#7FB3D5","#C39BD3","#F1948A","#76D7C4","#85929E","#5DADE2","#AF7AC5","#EC7063","#48C9B0","#AAB7B8"],"avoidColors":["#FF8C00","#D2691E","#FFD700","#228B22","#B8860B"],"makeupTips":"로즈·베리·모브 립이 잘 맞습니다. 쿨톤 핑크·라일락 섀도를 활용하세요.","fashionTips":"더스티 로즈, 슬레이트 블루, 라벤더, 쿨 그레이가 잘 어울립니다. 웜한 어스톤은 피하세요.","celebrities":["김고은","뉴진스 민지","트와이스 지효"]},{"id":"soft-summer","nameKo":"소프트 썸머","nameEn":"Soft Summer","season":"summer","ideal":{"undertone":-1,"value":0.3,"contrast":-0.5,"chroma":-1},"description":"시원하면서도 탁하고 부드러운 색이 잘 어울립니다. 은은한 톤온톤이 자연스럽습니다.","traits":["대비가 낮고 부드러운 인상","뮤트·그레이시 색이 잘 맞음","쿨톤 + 낮은 채도","진한 메이크업보다 자연스러운 메이크업이 잘 받음"],"bestColors":["#A9A9A9","#B0C4DE","#C8A2C8","#9CADB7","#D8BFD8","#8FBC8F","#BC8F8F","#778899","#DDA0DD","#A2B5A2"],"avoidColors":["#FF0000","#00FF00","#0000FF","#FFD700","#FF1493"],"makeupTips":"뮤트한 로즈·모브 립과 소프트한 그레이·라일락 섀도가 잘 맞습니다.","fashionTips":"더스티 블루, 세이지, 라벤더 그레이, 소프트 버건디가 잘 어울립니다. 비비드한 원색은 피하세요.","celebrities":["전지현","소녀시대 윤아","에스파 카리나"]},{"id":"soft-autumn","nameKo":"소프트 오텀","nameEn":"Soft Autumn","season":"autumn","ideal":{"undertone":1,"value":0.3,"contrast":-0.5,"chroma":-1},"description":"따뜻하면서도 부드럽고 탁한 색이 잘 어울립니다. 어스톤·카키 계열이 얼굴을 편안하게 보여줍니다.","traits":["웜톤 + 낮은 채도","대비가 낮은 부드러운 인상","베이지·카키·테라코타가 잘 맞음","선명한 색보다 뮤트한 색이 자연스러움"],"bestColors":["#C4A484","#B2AC88","#CD853F","#A0522D","#8FBC8F","#D2B48C","#BC8F8F","#DEB887","#9C8A6E","#C19A6B"],"avoidColors":["#FF1493","#00CED1","#7B68EE","#FF69B4","#00BFFF"],"makeupTips":"테라코타·브릭·뮤트 코랄 립을 추천합니다. 브라운·골드 섀도가 잘 맞습니다.","fashionTips":"올리브, 카멜, 머스타드, 소프트 테라코타가 잘 어울립니다. 네온·비비드 쿨톤 색은 피하세요.","celebrities":["김세정","트와이스 모모","에스파 윈터"]},{"id":"true-autumn","nameKo":"트루 오텀","nameEn":"True Autumn","season":"autumn","ideal":{"undertone":1,"value":0.3,"contrast":0.5,"chroma":-0.5},"description":"따뜻하고 풍부한 어스톤이 가장 잘 어울리는 전형적인 가을 타입입니다.","traits":["웜톤의 특징이 뚜렷함","골드·브라운·올리브가 잘 맞음","중간 채도의 따뜻한 색이 자연스러움","골드 액세서리가 잘 어울림"],"bestColors":["#D2691E","#8B4513","#B8860B","#556B2F","#A0522D","#CD5C5C","#DAA520","#6B8E23","#BC6C25","#8B7355"],"avoidColors":["#FF69B4","#00FFFF","#C0C0C0","#E6E6FA","#87CEEB"],"makeupTips":"브릭·테라코타·웜 브라운 립이 잘 맞습니다. 구리·골드 섀도로 깊이감을 더하세요.","fashionTips":"머스타드, 올리브, 버건디, 카멜, 러스트가 잘 어울립니다. 핑크·실버·차가운 회색은 피하세요.","celebrities":["공효진","소녀시대 티파니","뉴진스 해린"]},{"id":"deep-autumn","nameKo":"딥 오텀","nameEn":"Deep Autumn","season":"autumn","ideal":{"undertone":1,"value":-1,"contrast":0.5,"chroma":-0.7},"description":"깊고 따뜻한 색이 잘 어울립니다. 다크한 브라운·버건디·포레스트 그린이 얼굴을 세련되게 보여줍니다.","traits":["피부·눈·머리가 전반적으로 어두운 편","딥하고 따뜻한 색이 잘 맞음","웜톤 + 낮은 명도","밝은 파스텔보다 진한 색이 잘 받음"],"bestColors":["#4A3728","#6B2D5C","#3D5A3D","#8B0000","#5D4037","#704214","#2F4F2F","#800020","#4B3621","#654321"],"avoidColors":["#FFB6C1","#E0FFFF","#FFFACD","#F0E68C","#ADD8E6"],"makeupTips":"딥 버건디·브릭·다크 브라운 립을 추천합니다. 진한 브라운 스모키가 잘 맞습니다.","fashionTips":"초콜릿, 버건디, 포레스트, 딥 골드가 잘 어울립니다. 연한 파스텔·아이스 컬러는 피하세요.","celebrities":["전도연","에스파 지젤","트와이스 채영"]},{"id":"bright-winter","nameKo":"브라이트 윈터","nameEn":"Bright Winter","season":"winter","ideal":{"undertone":-1,"value":0.5,"contrast":1,"chroma":1},"description":"시원하면서도 선명한 고대비 색이 잘 어울립니다. 퓨어 화이트와 비비드 컬러가 얼굴을 또렷하게 살려줍니다.","traits":["이목구비 대비가 매우 뚜렷함","쿨톤 + 높은 채도","블랙·화이트·비비드가 잘 맞음","또렷한 메이크업이 잘 받음"],"bestColors":["#FFFFFF","#000000","#FF0080","#00FFFF","#FF0000","#0000FF","#FF00FF","#00FF00","#1E90FF","#DC143C"],"avoidColors":["#D2B48C","#BC8F8F","#CD853F","#A0522D","#DEB887"],"makeupTips":"선명한 레드·퓨시아·베리 립이 잘 맞습니다. 블랙 아이라인으로 또렷함을 강조하세요.","fashionTips":"퓨어 화이트, 블랙, 로열 블루, 핫핑크, 에메랄드가 잘 어울립니다. 베이지·브라운은 피하세요.","celebrities":["김연아","에스파 닝닝","트와이스 다현"]},{"id":"true-winter","nameKo":"트루 윈터","nameEn":"True Winter","season":"winter","ideal":{"undertone":-1,"value":0.3,"contrast":1,"chroma":0.5},"description":"시원하고 선명한 중간~높은 채도의 색이 가장 잘 어울리는 전형적인 겨울 타입입니다.","traits":["쿨톤의 특징이 뚜렷함","선명하고 차가운 색이 잘 맞음","블랙·화이트·와인 계열 선호","골드보다 실버가 자연스러움"],"bestColors":["#FFFFFF","#000000","#8B0000","#4B0082","#00008B","#C71585","#008080","#DC143C","#191970","#800080"],"avoidColors":["#FFA500","#DAA520","#CD853F","#F4A460","#D2691E"],"makeupTips":"체리·와인·베리 립이 잘 맞습니다. 쿨톤 핑크·퍼플 섀도를 활용하세요.","fashionTips":"블랙, 화이트, 네이비, 버건디, 로열 퍼플이 잘 어울립니다. 오렌지·카멜·머스타드는 피하세요.","celebrities":["김태리","소녀시대 써니","뉴진스 하니"]},{"id":"deep-winter","nameKo":"딥 윈터","nameEn":"Deep Winter","season":"winter","ideal":{"undertone":-1,"value":-1,"contrast":1,"chroma":0.7},"description":"깊고 시원한 색이 잘 어울립니다. 다크하고 선명한 컬러가 얼굴을 강렬하고 세련되게 보여줍니다.","traits":["피부·눈·머리가 전반적으로 어두운 편","딥하고 쿨한 색이 잘 맞음","쿨톤 + 낮은 명도 + 높은 대비","밝은 색보다 진한 색이 잘 받음"],"bestColors":["#0D0D0D","#1A0033","#4A0000","#003366","#2E0854","#800020","#0A1628","#4B0082","#1C1C1C","#560319"],"avoidColors":["#FFE4B5","#FFDAB9","#F5DEB3","#FFE4C4","#FAEBD7"],"makeupTips":"딥 와인·플럼·다크 베리 립을 추천합니다. 진한 스모키·퍼플 섀도가 잘 맞습니다.","fashionTips":"블랙, 딥 네이비, 플럼, 에메랄드, 다크 버건디가 잘 어울립니다. 연한 베이지·피치는 피하세요.","celebrities":["이영애","소녀시대 효연","트와이스 미나"]}];
+    const CATEGORY_LABEL = {"undertone":"언더톤","value":"명도","contrast":"대비","chroma":"채도","palette":"팔레트"};
+    const SEASON_LABEL = {"spring":"봄","summer":"여름","autumn":"가을","winter":"겨울"};
+    const SEASON_ACCENT = {"spring":"#E87A3D","summer":"#6B8FBF","autumn":"#A0673B","winter":"#2C3E6B"};
+    const AXES = ['undertone', 'value', 'contrast', 'chroma'];
+
+    let screen = 'home';
+    let step = 0;
+    let answers = {};
+
+    function aggregateScores(ans) {
+      const sums = { undertone: 0, value: 0, contrast: 0, chroma: 0 };
+      const counts = { undertone: 0, value: 0, contrast: 0, chroma: 0 };
+      for (const q of QUESTIONS) {
+        const choice = q.choices.find(c => c.id === ans[q.id]);
+        if (!choice) continue;
+        for (const axis of AXES) {
+          if (choice.scores[axis] !== undefined) {
+            sums[axis] += choice.scores[axis];
+            counts[axis] += 1;
+          }
+        }
+      }
+      const result = {};
+      for (const axis of AXES) {
+        result[axis] = counts[axis] > 0 ? sums[axis] / counts[axis] : 0;
+      }
+      return result;
+    }
+
+    function matchType(scores) {
+      const distances = COLOR_TYPES.map(type => {
+        let sum = 0;
+        for (const axis of AXES) {
+          const d = scores[axis] - type.ideal[axis];
+          sum += d * d;
+        }
+        return { type, distance: Math.sqrt(sum) };
+      }).sort((a, b) => a.distance - b.distance);
+      return {
+        primary: distances[0].type,
+        similar: distances.slice(1, 3).map(d => d.type),
+        isBorderline: Math.abs(scores.undertone) < 0.2,
+      };
+    }
+
+    function swatches(colors, small) {
+      return '<div class="palette">' + colors.map(c =>
+        '<div class="swatch' + (small ? ' sm' : '') + '" style="background:' + c + '" title="' + c + '"></div>'
+      ).join('') + '</div>';
+    }
+
+    function renderHome() {
+      return `
+        <div class="fade">
+          <p class="eyebrow">Personal Color</p>
+          <h1>나의 퍼스널<br/>컬러는?</h1>
+          <p class="lead">17가지 질문으로 12가지 시즌 타입 중 나에게 맞는 색을 찾아보세요.</p>
+          <div class="grid2">
+            <div class="card"><strong>언더톤</strong><span>웜 / 쿨</span></div>
+            <div class="card"><strong>명도</strong><span>라이트 / 딥</span></div>
+            <div class="card"><strong>대비</strong><span>로우 / 하이</span></div>
+            <div class="card"><strong>채도</strong><span>클리어 / 뮤트</span></div>
+          </div>
+          <button class="btn btn-primary" id="start">진단 시작하기</button>
+          <p class="hint">약 3분 · 참고용 자가 진단입니다</p>
+        </div>
+      `;
+    }
+
+    function renderQuiz() {
+      const q = QUESTIONS[step];
+      const selected = answers[q.id];
+      const pct = Math.round(((step + 1) / QUESTIONS.length) * 100);
+      return `
+        <div class="fade">
+          <div class="progress-meta"><span>${step + 1} / ${QUESTIONS.length}</span><span>${pct}%</span></div>
+          <div class="bar"><i style="width:${pct}%"></i></div>
+          <span class="badge">${CATEGORY_LABEL[q.category]}</span>
+          <h2>${q.text}</h2>
+          ${q.hint ? '<p>' + q.hint + '</p>' : ''}
+          <div class="choices">
+            ${q.choices.map(c =>
+              '<button class="choice' + (selected === c.id ? ' active' : '') + '" data-id="' + c.id + '">' + c.label + '</button>'
+            ).join('')}
+          </div>
+          <div class="nav">
+            <button class="btn btn-ghost" id="prev" ${step === 0 ? 'disabled' : ''}>이전</button>
+            <button class="btn btn-primary" id="next" ${selected ? '' : 'disabled'}>
+              ${step === QUESTIONS.length - 1 ? '결과 보기' : '다음'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderResult() {
+      const { primary, similar, isBorderline } = matchType(aggregateScores(answers));
+      const accent = SEASON_ACCENT[primary.season];
+      return `
+        <div class="fade center">
+          <p class="eyebrow" style="color:${accent}">${SEASON_LABEL[primary.season]} · ${primary.nameEn}</p>
+          <h1 style="margin-bottom:.75rem">${primary.nameKo}</h1>
+          <p class="lead" style="margin-left:auto;margin-right:auto">${primary.description}</p>
+        </div>
+        ${isBorderline ? '<div class="warn">언더톤이 웜/쿨 경계에 가깝습니다. 유사 타입도 함께 참고해 보세요.</div>' : ''}
+        <div class="section fade">
+          <div class="accent-line" style="background:${accent}"></div>
+          <div class="label">추천 컬러</div>
+          ${swatches(primary.bestColors)}
+          <div style="height:1rem"></div>
+          <div class="label">피하면 좋은 컬러</div>
+          ${swatches(primary.avoidColors, true)}
+        </div>
+        <div class="section fade">
+          <h3>이런 특징이 있어요</h3>
+          <ul>${primary.traits.map(t => '<li style="--dot:' + accent + '">' + t + '</li>').join('')}</ul>
+        </div>
+        <div class="section fade"><h3>메이크업 팁</h3><p>${primary.makeupTips}</p></div>
+        <div class="section fade"><h3>패션 팁</h3><p>${primary.fashionTips}</p></div>
+        <div class="section fade"><h3>참고 연예인</h3><p>${primary.celebrities.join(' · ')}</p></div>
+        <div class="fade" style="margin-bottom:1.25rem">
+          <h3>유사한 타입</h3>
+          <div class="similar">
+            ${similar.map(t => `
+              <div class="section" style="margin:0">
+                <p class="eyebrow" style="color:${SEASON_ACCENT[t.season]};margin-bottom:.25rem">${SEASON_LABEL[t.season]}</p>
+                <strong>${t.nameKo}</strong>
+                ${swatches(t.bestColors.slice(0,4), true)}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <button class="btn btn-primary" id="retry">다시 진단하기</button>
+        <p class="hint">본 결과는 참고용 자가 진단입니다.<br/>전문 퍼스널컬러 진단을 대체하지 않습니다.</p>
+      `;
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+      if (screen === 'home') app.innerHTML = renderHome();
+      else if (screen === 'quiz') app.innerHTML = renderQuiz();
+      else app.innerHTML = renderResult();
+      bind();
+    }
+
+    function bind() {
+      const start = document.getElementById('start');
+      if (start) start.onclick = () => { screen = 'quiz'; step = 0; answers = {}; render(); };
+
+      document.querySelectorAll('.choice').forEach(btn => {
+        btn.onclick = () => {
+          answers[QUESTIONS[step].id] = btn.dataset.id;
+          render();
+        };
+      });
+
+      const prev = document.getElementById('prev');
+      if (prev) prev.onclick = () => { if (step > 0) { step--; render(); } };
+
+      const next = document.getElementById('next');
+      if (next) next.onclick = () => {
+        if (!answers[QUESTIONS[step].id]) return;
+        if (step < QUESTIONS.length - 1) { step++; render(); }
+        else { screen = 'result'; render(); }
+      };
+
+      const retry = document.getElementById('retry');
+      if (retry) retry.onclick = () => { screen = 'home'; step = 0; answers = {}; render(); };
+    }
+
+    render();
+  </script>
+</body>
 </html>

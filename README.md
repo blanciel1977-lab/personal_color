@@ -1,27 +1,13 @@
 # 퍼스널컬러 진단
 
-17문항 객관식 퀴즈로 12타입 퍼스널컬러를 진단하는 웹 앱입니다.
-
-## 기능
-
-- 언더톤 · 명도 · 대비 · 채도 4축 기반 진단
-- 12시즌 타입 결과 (주 타입 + 유사 타입)
-- 추천/피할 컬러 팔레트, 메이크업·패션 팁
+17문항 객관식 퀴즈로 12타입 퍼스널컬러를 진단하는 웹 페이지입니다.
 
 ## 실행
 
-```bash
-npm install
-npm run dev
-```
+`index.html` 파일을 브라우저로 열면 됩니다.
 
-## 빌드
+## GitHub Pages
 
-```bash
-npm run build
-```
+저장소 Settings → Pages → Source를 **Deploy from a branch** → `master` / `/ (root)` 로 설정하면 아래 주소로 접속할 수 있습니다.
 
-## 기술 스택
-
-- Vite + React + TypeScript
-- Tailwind CSS
+https://blanciel1977-lab.github.io/personal_color/
